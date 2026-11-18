@@ -4,6 +4,7 @@ extends "res://scripts/unit.gd"
 var atk_t := 0.0
 var respawn_t := 0.0
 var hurt_t := 0.0
+var hit_t := -1.0
 
 
 func setup(main_) -> void:
@@ -44,14 +45,22 @@ func _process(dt: float) -> void:
 	if Input.is_action_pressed("attack") and atk_t <= 0.0 and not blocking:
 		atk_t = d.atk_cd
 		play_attack(d.atk_cd)
-		main.add_fx("slash", position + Vector2(facing * 14.0, -18.0), {"dir": facing})
-		var hits := 0
-		for e in main.demons_in(position.x, d.atk_range):
-			# Only what is in front of the sword (with a little forgiveness).
-			if hits < int(d.max_hits) and (e.position.x - position.x) * facing >= -6.0:
-				hits += 1
-				e.take_damage(d.dmg)
-				e.knockback(facing * float(d.knock))
+		hit_t = float(d.atk_cd) * float(d.hit_at)
+	if hit_t >= 0.0:
+		hit_t -= dt
+		if hit_t < 0.0:
+			_strike(d)
+
+
+func _strike(d: Dictionary) -> void:
+	main.add_fx("slash", position + Vector2(facing * 14.0, -18.0), {"dir": facing})
+	var hits := 0
+	for e in main.demons_in(position.x, d.atk_range):
+		# Only what is in front of the sword (with a little forgiveness).
+		if hits < int(d.max_hits) and (e.position.x - position.x) * facing >= -6.0:
+			hits += 1
+			e.take_damage(d.dmg)
+			e.knockback(facing * float(d.knock))
 
 
 func take_damage(amount: float, silent: bool = false) -> void:

@@ -51,11 +51,12 @@ func init_sprite(tex_name: String) -> void:
 
 func init_anim(sheet: String) -> void:
 	animated = true
+	anim = Cfg.ANIMS[sheet]
 	sprite = Sprite2D.new()
 	sprite.texture = load("res://art/anim/%s.png" % sheet)
 	sprite.centered = false
-	sprite.hframes = 6
-	sprite.vframes = 3
+	sprite.hframes = anim.cols
+	sprite.vframes = anim.rows
 	sprite.offset = Vector2(-32, -55)
 	sprite_h = 40.0
 	var mat := ShaderMaterial.new()
@@ -64,7 +65,11 @@ func init_anim(sheet: String) -> void:
 	add_child(sprite)
 
 
-# Play the 6-frame attack row once over `secs` seconds.
+var anim: Dictionary
+var _atk_len := 0.5
+
+
+# Play the attack row once, stretched or squeezed to last `secs` seconds.
 func play_attack(secs: float = 0.5) -> void:
 	if animated:
 		_atk_anim = 0.0
@@ -72,24 +77,39 @@ func play_attack(secs: float = 0.5) -> void:
 	else:
 		lunge()
 
-var _atk_len := 0.5
+
+func _cell(row: int, col: int) -> int:
+	return row * int(anim.cols) + col
 
 
 func _anim_frame(dt: float) -> int:
 	if _atk_anim >= 0.0:
 		_atk_anim += dt
 		if _atk_anim < _atk_len:
-			return 6 + mini(5, int(_atk_anim / _atk_len * 6.0))
+			var d: Array = anim.attack[1]
+			var total := 0.0
+			for v in d:
+				total += float(v)
+			var t := _atk_anim / _atk_len * total
+			var acc := 0.0
+			for i in d.size():
+				acc += float(d[i])
+				if t < acc:
+					return _cell(anim.attack[0], i)
+			return _cell(anim.attack[0], d.size() - 1)
 		_atk_anim = -1.0
-	if blocking:
-		return 12 + (3 if _hit_anim > 0.0 else 2)
-	if _hit_anim > 0.0:
-		return 15
+	var brow: int = anim.get("block", -1)
+	if brow >= 0:
+		if blocking:
+			return _cell(brow, 3 if _hit_anim > 0.0 else 2)
+		if _hit_anim > 0.0:
+			return _cell(brow, 3)
 	if moving:
 		_anim_t += dt
-		return int(_anim_t * 8.0) % 6
+		var w: Array = anim.walk
+		return _cell(w[0], int(_anim_t / float(w[2])) % int(w[1]))
 	_anim_t = 0.0
-	return 0
+	return _cell(anim.walk[0], 0)
 
 
 func tick_visual(dt: float) -> void:

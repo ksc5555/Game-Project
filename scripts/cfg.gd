@@ -23,7 +23,7 @@ const PAY_INTERVAL := 0.16      # seconds between coins while holding E
 # --- Player ---
 const PLAYER := {
 	"anim": "soldier", "sprite": "soldier_sword", "hp": 70.0, "walk": 58.0, "sprint": 98.0,
-	"dmg": 7.0, "atk_cd": 0.42, "atk_range": 28.0, "knock": 5.0, "max_hits": 2,
+	"dmg": 7.0, "atk_cd": 0.55, "hit_at": 0.45, "atk_range": 28.0, "knock": 5.0, "max_hits": 2,
 	"regen": 1.0, "respawn": 6.0,
 }
 
@@ -70,8 +70,8 @@ const TOWER_RANGE_BONUS := 35.0
 
 # --- Demons ---
 const DEMONS := {
-	"thrall":  {"sprite": "thrall",  "hp": 20.0, "speed": 34.0, "dmg": 5.0, "atk_cd": 0.9, "reach": 14.0, "struct_mult": 0.7, "coins": 1, "coin_chance": 0.7},
-	"warclan": {"sprite": "warclan", "hp": 110.0, "speed": 21.0, "dmg": 14.0, "atk_cd": 1.4, "reach": 16.0, "struct_mult": 2.5, "coins": 2, "coin_chance": 1.0},
+	"thrall":  {"sprite": "anim:thrall",  "hp": 20.0, "speed": 34.0, "dmg": 5.0, "atk_cd": 0.9, "reach": 14.0, "struct_mult": 0.7, "coins": 1, "coin_chance": 0.7},
+	"warclan": {"sprite": "anim:warclan", "hp": 110.0, "speed": 21.0, "dmg": 14.0, "atk_cd": 1.4, "reach": 16.0, "struct_mult": 2.5, "coins": 2, "coin_chance": 1.0},
 }
 
 # Wave for night n (1-based). Returns how many of each demon.
@@ -109,4 +109,15 @@ const BUILDINGS := {
 		"levels": [{"cost": 99, "hp": 200.0, "h": 30.0, "time": 6.0}]},
 }
 const PROPS := [["campfire", 110.0]]
+# --- Animated sheets in art/anim (64 px cells, feet on row 54).
+#     walk = [row, frames, seconds per frame]; attack = [row, frame durations in ms]; block = row or -1.
+const SWORD_ATTACK := [160, 90, 90, 100, 100, 80, 110, 170]
+const SPEAR_ATTACK := [200, 130, 160, 110, 140, 220]
+const ANIMS := {
+	"soldier":   {"cols": 8, "rows": 3, "walk": [0, 8, 0.1], "attack": [1, SWORD_ATTACK], "block": 2},
+	"soldier2":  {"cols": 8, "rows": 3, "walk": [0, 8, 0.1], "attack": [1, SWORD_ATTACK], "block": 2},
+	"soldier_f": {"cols": 8, "rows": 3, "walk": [0, 8, 0.1], "attack": [1, SPEAR_ATTACK], "block": 2},
+	"thrall":    {"cols": 6, "rows": 2, "walk": [0, 6, 0.13], "attack": [1, SPEAR_ATTACK], "block": -1},
+	"warclan":   {"cols": 6, "rows": 2, "walk": [0, 6, 0.13], "attack": [1, SPEAR_ATTACK], "block": -1},
+}
 const BLOCK_REDUCTION := 0.75   # damage blocked while holding the block key

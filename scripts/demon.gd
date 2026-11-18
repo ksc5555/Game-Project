@@ -44,7 +44,7 @@ func _process(dt: float) -> void:
 		facing = 1 if u.position.x > position.x else -1
 		if atk_t <= 0.0:
 			atk_t = def.atk_cd
-			lunge()
+			play_attack(float(def.atk_cd) * 0.9)
 			u.take_damage(def.dmg)
 		return
 
@@ -54,7 +54,7 @@ func _process(dt: float) -> void:
 		moving = false
 		if atk_t <= 0.0:
 			atk_t = def.atk_cd
-			lunge()
+			play_attack(float(def.atk_cd) * 0.9)
 			s.take_damage(float(def.dmg) * float(def.struct_mult))
 		return
 
